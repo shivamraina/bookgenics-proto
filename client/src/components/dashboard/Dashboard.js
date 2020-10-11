@@ -35,7 +35,6 @@ class Dashboard extends Component {
 
     try {
       let res = await axios.post('/api/prediction', formData);
-      console.log(res.data.ans);
       res = res.data.ans;
       this.setState({loading: false, res: res});
     }

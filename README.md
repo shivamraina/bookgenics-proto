@@ -9,6 +9,6 @@ Install node, then follow the below steps:
 
 2. Run "npm install && cd client && npm install" in cmd.
 
-3. Go back to root project directory and run "npm run server".
+3. Go back to root project directory and run "npm run dev".
 
 This project uses NLP and MERN stack integrated together for working.

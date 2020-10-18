@@ -3,9 +3,9 @@ Joi.objectId = require('joi-objectid')(Joi)
 const mongoose = require('mongoose');
 const {User} = require('./user');
 
-mongoose.connect('mongodb://localhost/bookgenics', {useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true})
-        .then(() => console.log('Connected to Database'))
-        .catch(err => console.log(err));
+// mongoose.connect('mongodb://localhost/bookgenics', {useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true})
+//         .then(() => console.log('Connected to Database'))
+//         .catch(err => console.log(err));
 
 const {genreSchema} = require('./genre')
 

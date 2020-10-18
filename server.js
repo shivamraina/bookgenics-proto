@@ -17,7 +17,7 @@ mongoose.connect('mongodb://localhost/bookgenics', {useCreateIndex: true, useNew
         .then(() => console.log('Connected to Database'))
         .catch(err => console.log(err));
 
-console.log(config.get('jwtPrivateKey'));
+// console.log(config.get('jwtPrivateKey'));
 if(!config.get('jwtPrivateKey')) {
     console.log('FATAL ERROR: jwtPrivateKey is not defined');
     process.exit(1);    

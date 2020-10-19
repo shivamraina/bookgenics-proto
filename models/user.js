@@ -58,11 +58,14 @@ function validateRegisterInput(user) {
         email: Joi.string().min(5).max(255).email().required(),
         password: Joi.string().min(5).max(255).required(),
         confirmPassword: Joi.string().required().valid(Joi.ref('password')),
-        genresPreferred: Joi.array().items(Joi.object({
-            _id: Joi.objectId().required(),
-            name: Joi.valid('others','thriller','drama','romance','abstract','inspirational','fantasy','children stories',
-		'children','tragedy','horror','classics','action','comedy','crime').required()
-        })).min(1).required()
+
+        // genresPreferred: Joi.array().items(Joi.objectId().required()).min(1).required()
+
+        // genresPreferred: Joi.array().items(Joi.object({
+        //     _id: Joi.objectId().required(),
+        //     name: Joi.valid('others','thriller','drama','romance','abstract','inspirational','fantasy','children stories',
+		// 'children','tragedy','horror','classics','action','comedy','crime').required()
+        // })).min(1).required()
     });
     return schema.validate(user);
 }

@@ -1,0 +1,33 @@
+.Multiselect {
+  position: absolute;
+  left: 79%;
+  top: 35%;
+  width: 20%;
+}
+
+.Multiselect input[type="button"] {
+  position: absolute;
+  left: 33%;
+  color: #000000;
+  top: 100%;
+  width: 40%;
+  border: 2px solid green;
+  border-radius: 25px; 
+}
+
+.Multiselect input[type="button"]:hover{
+  position: absolute;
+  left: 33%;
+  color: #ffffff;
+  top: 100%;
+  width: 40%;
+  background-color:green;
+  box-sizing: border-box;
+  border-radius: 25px; 
+}
+
+@media(max-width: 1000px) {
+  .Multiselect {
+    display: none;
+  }
+}

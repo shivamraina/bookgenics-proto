@@ -1,0 +1,14 @@
+.TopNavTagLine {
+  display: block;
+  margin-left: auto;
+}
+
+@media (max-width: 768px) {
+  .TopNavTagLine{
+    display: none;
+  }
+}
+
+.SecondNav {
+  display: flex;
+}

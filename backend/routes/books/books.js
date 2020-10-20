@@ -11,6 +11,7 @@ router.get('/', auth, async (req,res) => {
   try {
     const id = req.user._id;
     const userGenres = await User.findById(id).select({genresPreferred:1,_id:0});
+    console.log(userGenres);
     const books = await Book.find({
       genres: { $in: userGenres.genresPreferred}
     })
@@ -21,6 +22,25 @@ router.get('/', auth, async (req,res) => {
   }
 });
 
+router.get('/filter', auth, async (req,res) => {
+  try {
+    const criteria={}
+
+    if(req.query.filterName && req.query.filterName.length) criteria.title = {$regex:new RegExp(req.query.filterName, "i")};
+    if(req.query.filterAuthor && req.query.filterAuthor.length) criteria.author = {$regex:new RegExp(req.query.filterAuthor, "i")};
+    // if(req.query.filterUploader && req.query.filterUploader.length) criteria.uploadedBy = {$regex:new RegExp(req.query.filterUploader, "i")};
+
+    if(req.query.filterGenres && req.query.filterGenres.length) {
+      criteria.genres = { $in: req.query.filterGenres};
+    }
+    // console.log(criteria);
+    const books = await Book.find(criteria)
+    res.send(books);
+  }
+  catch(ex) {
+    res.send(ex.message);
+  }
+});
 
 router.get('/:id', auth, async (req,res) => {
   
@@ -39,6 +59,11 @@ router.get('/:id', auth, async (req,res) => {
   }
 
 });
+
+
+
+
+
 
 router.post('/', auth, async (req,res) => {
   const { error } = validateBookInput(req.body);

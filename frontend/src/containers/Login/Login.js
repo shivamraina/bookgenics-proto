@@ -57,7 +57,7 @@ class Login extends Component {
     const {err} = this.props.errors;
 
     let form = (
-      <div className={classes['body']}>
+      <div>
         <main className="d-flex align-items-center">
           <div className="container">
             <div className={"card "+classes['login-card']}>
@@ -109,7 +109,7 @@ class Login extends Component {
     );
     
     return(
-      <div>
+      <div className={classes['body']}>
         <HomeNavbar />
         {form}
       </div>

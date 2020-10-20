@@ -112,7 +112,7 @@ class Register extends Component {
       return;
     }
 
-    this.setState({loading: true});
+    this.setState({loading:true});
     const newUser = {
       name: this.state.name,
       email: this.state.email,
@@ -228,7 +228,7 @@ class Register extends Component {
     }
 
     return(
-      <div style={{marginBottom:0}}>
+      <div className={classes["body"]}>
         <HomeNavbar />
         {form}
       </div>

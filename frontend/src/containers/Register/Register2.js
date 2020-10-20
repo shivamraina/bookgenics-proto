@@ -135,7 +135,7 @@ class Register2 extends Component {
                         type='submit' 
                         disabled={this.state.totalSelected<=0}>Register</button> 
                   }
-                  <button className={"btn btn-block mb-4 "+classes['register-btn']} onClick={this.props.clicked}>Back</button>
+                  <button className={"btn btn-block mb-4 "+classes['back-btn']} onClick={this.props.clicked}>Back</button>
                 </div>
               </div>
               

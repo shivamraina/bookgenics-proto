@@ -27,7 +27,7 @@
   padding-right: 0;
 }
 
-.register-btn {
+.register-btn{
   padding: 13px 20px 12px;
   background-color: #000;
   border-radius: 4px;
@@ -37,7 +37,20 @@
   color: #fff;
 }
 
-.register-btn:hover {
+.back-btn {
+  padding: 13px 20px 12px;
+  background-color: #000;
+  border-radius: 4px;
+  font-size: 17px;
+  font-weight: bold;
+  line-height: 20px;
+  color: #fff;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
+.register-btn:hover,.back-btn:hover {
   border: 1px solid #000;
   background-color: transparent;
   color: #000;
@@ -66,5 +79,8 @@
   }
   .Heading{
     padding-left: 15px;
+  }
+  .back-btn{
+    position: relative;
   }
 }

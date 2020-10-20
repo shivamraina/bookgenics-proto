@@ -2,8 +2,8 @@ const Joi = require('joi');
 const express = require('express');
 const router = express.Router();
 const auth = require('../../middleware/auth');
-const { Book } = require('../models/book');
-const { User } = require('../models/user');
+const { Book } = require('../../models/book');
+const { User } = require('../../models/user');
 const validateBookInput = require('../../validation/validateBookInput'); 
 
 router.get('/', auth, async (req,res) => {
@@ -118,7 +118,7 @@ router.delete('/:id',auth,async (req,res)=>{
     const userid = req.user._id;
     if(!req.user.isAdmin && userid != book.uploadedBy) return res.status(403).send('Access Denied');
 
-    await Book.deleteOne( id );
+    await Book.deleteOne({_id: id });
     res.send('OK');
   }
   catch(ex) {

@@ -5,6 +5,7 @@ const auth = require('../../middleware/auth');
 const { Book } = require('../../models/book');
 const { User } = require('../../models/user');
 const validateBookInput = require('../../validation/validateBookInput'); 
+const { request } = require('express');
 
 router.get('/', auth, async (req,res) => {
   
@@ -22,18 +23,23 @@ router.get('/', auth, async (req,res) => {
   }
 });
 
-router.get('/filter', auth, async (req,res) => {
+router.post('/filter', auth, async (req,res) => {
   try {
     const criteria={}
+    // console.log(req.body);
+    if(req.body.filterName && req.body.filterName.length) criteria.title = {$regex:new RegExp(req.body.filterName, "i")};
+    if(req.body.filterAuthor && req.body.filterAuthor.length) criteria.author = {$regex:new RegExp(req.body.filterAuthor, "i")};
 
-    if(req.query.filterName && req.query.filterName.length) criteria.title = {$regex:new RegExp(req.query.filterName, "i")};
-    if(req.query.filterAuthor && req.query.filterAuthor.length) criteria.author = {$regex:new RegExp(req.query.filterAuthor, "i")};
-    // if(req.query.filterUploader && req.query.filterUploader.length) criteria.uploadedBy = {$regex:new RegExp(req.query.filterUploader, "i")};
+    if(req.body.filterUploader && req.body.filterUploader.length){
+      const users = await User.find({name: {$regex:new RegExp(req.body.filterUploader, "i")} })
+      criteria.uploadedBy = { $in: users};
+    }
 
-    if(req.query.filterGenres && req.query.filterGenres.length) {
-      criteria.genres = { $in: req.query.filterGenres};
+    if(req.body.filterGenres && req.body.filterGenres.length) {
+      criteria.genres = { $in: req.body.filterGenres};
     }
     // console.log(criteria);
+    // console.log(criteria.genres);
     const books = await Book.find(criteria)
     res.send(books);
   }

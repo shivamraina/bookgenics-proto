@@ -36,8 +36,8 @@ router.post('/filter', auth, async (req,res) => {
     if(req.body.filterGenres && req.body.filterGenres.length) {
       criteria.genres = { $in: req.body.filterGenres};
     }
-    
-    const books = await Book.find(criteria)
+
+    const books = await Book.find(criteria).populate('uploadedBy','name -_id');
     res.send(books);
   }
   catch(ex) {

@@ -8,14 +8,13 @@ const validateBookInput = require('../../validation/validateBookInput');
 const { request } = require('express');
 
 router.get('/', auth, async (req,res) => {
-  
   try {
     const id = req.user._id;
     const userGenres = await User.findById(id).select({genresPreferred:1,_id:0});
     console.log(userGenres);
     const books = await Book.find({
       genres: { $in: userGenres.genresPreferred}
-    })
+    }).populate('uploadedBy','name -_id');
     res.send(books);
   }
   catch(ex) {
@@ -26,7 +25,6 @@ router.get('/', auth, async (req,res) => {
 router.post('/filter', auth, async (req,res) => {
   try {
     const criteria={}
-    // console.log(req.body);
     if(req.body.filterName && req.body.filterName.length) criteria.title = {$regex:new RegExp(req.body.filterName, "i")};
     if(req.body.filterAuthor && req.body.filterAuthor.length) criteria.author = {$regex:new RegExp(req.body.filterAuthor, "i")};
 
@@ -38,8 +36,7 @@ router.post('/filter', auth, async (req,res) => {
     if(req.body.filterGenres && req.body.filterGenres.length) {
       criteria.genres = { $in: req.body.filterGenres};
     }
-    // console.log(criteria);
-    // console.log(criteria.genres);
+    
     const books = await Book.find(criteria)
     res.send(books);
   }
@@ -56,7 +53,7 @@ router.get('/:id', auth, async (req,res) => {
   
   try {
     //look book if no book return 404 resource not found
-    let book = await Book.findById(id).populate('uploadedBy');
+    let book = await Book.findById(id).populate('uploadedBy','name -_id');
     if(!book) return res.status(404).send("The Book with the given id is not found!");
     res.send(book);
   }

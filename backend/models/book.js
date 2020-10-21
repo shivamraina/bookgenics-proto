@@ -1,7 +1,6 @@
 const Joi = require('joi');
 Joi.objectId = require('joi-objectid')(Joi)
 const mongoose = require('mongoose');
-const {User} = require('./user');
 const {genreSchema} = require('./genre')
 
 const bookSchema = new mongoose.Schema({
@@ -22,7 +21,7 @@ const bookSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
-    minlength: 200,
+    minlength: 3,
   },
   genres: {
     type: [genreSchema],
@@ -35,13 +34,16 @@ const bookSchema = new mongoose.Schema({
   },
   uploadedBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: User,
-    // default: "5f8ac029aef785531c871b29",
-    required: true
+    ref: 'User',
+    default: '5f8e96e373ddc13c6467162f'
+  },
+  date: {
+    type: Date,
+    default: Date.now
   }
 });
 
-
+bookSchema.set('toJSON', { getters: true, virtuals: false });
 const Book = mongoose.model('Book', bookSchema);
 
 module.exports.Book = Book;

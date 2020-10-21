@@ -4,44 +4,153 @@ const router = express.Router();
 const auth = require('../../middleware/auth');
 const { Book } = require('../../models/book');
 const { User } = require('../../models/user');
+const { Genre } = require('../../models/genre');
 const validateBookInput = require('../../validation/validateBookInput'); 
-const { request } = require('express');
+
+function getLikedStatus(books, userFavorites) {
+  let ret = [];
+  for(book of books) {
+    ret.push(book.toJSON());
+  }
+
+  for(book of ret) {
+    let found = false;
+    if(userFavorites.length > 0) {
+      for(favs of userFavorites) {
+        if(book._id.toString() === favs._id.toString()) {
+          found = true;
+          book.liked = true;
+          break;
+        }
+      }
+    }
+    if(!found) {
+      book.liked = false;
+    }
+  }
+  return ret;
+}
 
 router.get('/', auth, async (req,res) => {
+  
   try {
     const id = req.user._id;
     const userGenres = await User.findById(id).select({genresPreferred:1,_id:0});
-    console.log(userGenres);
+    const user = await User.findById(id);
     const books = await Book.find({
       genres: { $in: userGenres.genresPreferred}
-    }).populate('uploadedBy','name -_id');
-    res.send(books);
+    }).sort('title').limit(200).populate('uploadedBy','name _id');
+
+    let ret = getLikedStatus(books, user.favorites);
+    res.send(ret);
   }
   catch(ex) {
     res.send(ex);
   }
 });
 
-router.post('/filter', auth, async (req,res) => {
+router.get('/favorites/me', auth, async(req, res) => {
   try {
+    const id = req.user._id;
+    let books = [];
+
+    const user = await User.findById(id);
+    for(favs of user.favorites) {
+      let currbook = await Book.findById(favs._id).populate('uploadedBy', 'name _id');
+      books.push(currbook);
+    }
+
+    let ret = getLikedStatus(books, user.favorites);
+    res.send(ret);
+  }
+  catch(ex) {
+    res.send(ex);
+  }
+});
+
+router.get('/added/me', auth, async(req, res) => {
+  try {
+    const id = req.user._id;
+    const books = (await Book.find().sort('title').limit(200).populate('uploadedBy', 'name _id')).filter(book => book.uploadedBy._id.toString() === id.toString());
+    let ret = getLikedStatus(books, (await User.findById(req.user._id)).favorites);
+    res.send(ret);
+  }
+  catch(ex) {
+    res.send(ex);
+  }
+});
+
+router.post('/favorites', auth, async (req,res) => {
+  try {
+    const id = req.user._id;
+    const user = await User.find({_id: id});
+
+    let found = false; 
+    for(favs of user[0].favorites) {
+      if(favs._id.toString() === req.body.id) {
+        found = true;
+        break;
+      }
+    }
+
+    if(!found){
+      const book = await Book.find({_id:req.body.id});
+      await User.findByIdAndUpdate(id, { $push: { favorites: book[0] } } );
+    }
+    else {
+      const book = await Book.find({_id:req.body.id});
+      await User.findByIdAndUpdate(id, { $pull: { favorites: book[0]} } );
+    }
+    res.send('OK');
+  }
+  catch(ex) {
+    res.send(ex);
+  }
+});
+
+router.post('/filter/:id', auth, async (req,res) => {
+  try {
+    if(req.params.id > 4) return res.status(400).send('Invalid Request');
     const criteria={}
     if(req.body.filterName && req.body.filterName.length) criteria.title = {$regex:new RegExp(req.body.filterName, "i")};
     if(req.body.filterAuthor && req.body.filterAuthor.length) criteria.author = {$regex:new RegExp(req.body.filterAuthor, "i")};
-
+    
     if(req.body.filterUploader && req.body.filterUploader.length){
       const users = await User.find({name: {$regex:new RegExp(req.body.filterUploader, "i")} })
       criteria.uploadedBy = { $in: users};
+    }
+
+    for(genre of req.body.filterGenres) {
+      genre.__v = 0;
     }
 
     if(req.body.filterGenres && req.body.filterGenres.length) {
       criteria.genres = { $in: req.body.filterGenres};
     }
 
-    const books = await Book.find(criteria).populate('uploadedBy','name -_id');
-    res.send(books);
+    let books = [];
+    if(req.params.id === '1') {
+      books = await Book.find(criteria).sort('title').limit(200).populate('uploadedBy','name _id').select('-content');
+    }
+    else if(req.params.id === '3') {
+      books = (await Book.find(criteria).sort('title').limit(200).populate('uploadedBy', 'name _id')).filter(book => book.uploadedBy._id.toString() === req.user._id.toString());
+    }
+    else {
+      const user = await User.findById(req.user._id);
+      for(favs of user.favorites) {
+        criteria._id = favs._id;
+        console.log(criteria);
+        let currbook = await Book.find(criteria).populate('uploadedBy', 'name _id');
+        console.log(currbook);
+        if(currbook.length>0) books.push(currbook[0]);
+      }
+    }
+    if(!books) return res.send([]); 
+    let ret = getLikedStatus(books, (await User.findById(req.user._id)).favorites);
+    res.send(ret);
   }
   catch(ex) {
-    res.send(ex.message);
+    res.send(ex);
   }
 });
 
@@ -53,7 +162,7 @@ router.get('/:id', auth, async (req,res) => {
   
   try {
     //look book if no book return 404 resource not found
-    let book = await Book.findById(id).populate('uploadedBy','name -_id');
+    let book = await Book.findById(id).populate('uploadedBy');
     if(!book) return res.status(404).send("The Book with the given id is not found!");
     res.send(book);
   }
@@ -62,11 +171,6 @@ router.get('/:id', auth, async (req,res) => {
   }
 
 });
-
-
-
-
-
 
 router.post('/', auth, async (req,res) => {
   const { error } = validateBookInput(req.body);
@@ -84,7 +188,7 @@ router.post('/', auth, async (req,res) => {
 
     await book.save();
     await book.populate('uploadedBy').execPopulate();
-    res.send('OK');
+    res.send(book);
   }
   catch(ex){
     res.send(ex);

@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
-import SearchBook from '../SearchBook/SearchBook';
+import SortBook from '../SortBook/SortBook';
 import FilterBook from '../FilterBook/FilterBook';
 
 class BookUtils extends Component {
   render() {
     return (
       <React.Fragment>
-        <SearchBook />
-        <FilterBook />
+        <SortBook sorted={this.props.sorted}/>
+        <FilterBook genres={this.props.genres} filtered={this.props.filtered} page_id={this.props.page_id}/>
       </React.Fragment>
     );
   }

@@ -11,6 +11,8 @@ import Login from './containers/Login/Login';
 import Register from './containers/Register/Register';
 import PrivateRoute from './components/PrivateRoute/PrivateRoute';
 import Dashboard from './components/Dashboard/Dashboard';
+import Favorites from './components/Dashboard/Favorites/Favorites';
+import BooksAdded from './components/Dashboard/BooksAdded/BooksAdded';
 
 class App extends Component {
 
@@ -33,8 +35,9 @@ class App extends Component {
             <Route exact path='/' component={Home} />
             <Route exact path='/login' component={Login} />
             <Route exact path='/register' component={Register} />
-            {/* <Route exact path='/dashboard' component={Dashboard} /> */}
             <PrivateRoute exact path="/dashboard" component={Dashboard} />
+            <PrivateRoute exact path="/favorites" component={Favorites} />
+            <PrivateRoute exact path="/booksadded" component={BooksAdded} />
           </Switch>
         </BrowserRouter>
       </Provider>

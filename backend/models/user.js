@@ -2,8 +2,13 @@ const mongoose = require('mongoose');
 const jwt = require("jsonwebtoken");
 const config = require('config');
 const {genreSchema} = require('./genre');
+const {bookSchema} = require('./book');
 
 const userSchema = new mongoose.Schema({
+  // _id:{
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   default: '5f8e96e373ddc13c6467162f'
+  // },
   name: {
     type: String,
     required: true,
@@ -41,11 +46,14 @@ const userSchema = new mongoose.Schema({
       }
     },
     required: true
-  }
+  },
+  favorites : [bookSchema]
 });
 
+// userSchema.set('toJSON', { getters: true, virtuals: false });
+
 userSchema.methods.generateAuthToken = function() {
-  const token = jwt.sign({ _id: this._id,  name: this.name, isAdmin: this.isAdmin }, config.get('jwtPrivateKey'));
+  const token = jwt.sign({ _id: this._id,  name: this.name, email:this.email, isAdmin: this.isAdmin }, config.get('jwtPrivateKey'));
   return token;
 };
 

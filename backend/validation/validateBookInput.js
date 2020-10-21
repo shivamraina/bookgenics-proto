@@ -8,7 +8,7 @@ module.exports = function(book) {
 
     author: Joi.string().min(3).max(100).required(),
     
-    content: Joi.string().min(200).required(),
+    content: Joi.string().min(3).required(),
     
     genres: Joi.array().items(Joi.object({
         _id: Joi.objectId().required(),

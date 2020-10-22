@@ -182,11 +182,19 @@ router.post('/', auth, async (req,res) => {
 
     const { error } = validateBookInput(req.body);
     if(error) {
+      console.log(req.body);
       console.log(error.details[0].message)
+      const idk= req.body.genres[0];
+      const mt = idk._id;
+      console.log(idk);
+      console.log(typeof mt);
+      const id = req.user._id;
+      console.log(typeof id);
       return res.status(400).send(error.details[0].message);
     }
 
     const id = req.user._id;
+    console.log(typeof id);
     let book = new Book({
         title: req.body.title,
         author: req.body.author,
@@ -227,6 +235,7 @@ router.put('/:id', auth, async (req,res) => {
       //next everything good update course and return updated course
       // First query and then Update (query has been done above)
 
+      await User.updateMany({ favorites: book}, { $set: { "favorites.$.title": req.body.newTitle,"favorites.$.author": req.body.newAuthor } }).exec();
       book.set({
           title: req.body.newTitle,
           author: req.body.newAuthor
@@ -240,6 +249,8 @@ router.put('/:id', auth, async (req,res) => {
       res.send(ex);
     }
 });
+
+
 
 router.delete('/:id',auth,async (req,res)=>{
     
@@ -256,6 +267,7 @@ router.delete('/:id',auth,async (req,res)=>{
     const userid = req.user._id;
     if(!req.user.isAdmin && userid.toString() != book.uploadedBy.toString()) return res.status(403).send('Access Denied');
 
+    await User.updateMany({}, { $pull: { favorites: book} } ).exec();
     await Book.deleteOne({_id: id });
     res.send('OK');
   }

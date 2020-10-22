@@ -10,9 +10,9 @@ import Home from './components/Home/Home';
 import Login from './containers/Login/Login';
 import Register from './containers/Register/Register';
 import PrivateRoute from './components/PrivateRoute/PrivateRoute';
-import Dashboard from './components/Dashboard/Dashboard';
-import Favorites from './components/Dashboard/Favorites/Favorites';
-import BooksAdded from './components/Dashboard/BooksAdded/BooksAdded';
+import Dashboard from './containers/Dashboard/Dashboard';
+import Favorites from './containers/Favorites/Favorites';
+import BooksAdded from './containers/BooksAdded/BooksAdded';
 
 class App extends Component {
 

@@ -28,7 +28,7 @@ if(!config.get('mongoURI')) {
 // Getting MongoCloud Db URI
 let db = config.get('mongoURI');
 // Connecting to MongoDB
-mongoose.connect(db, {useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true})
+mongoose.connect(db, {useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
     .then(() => console.log('Connected to Database'))
     .catch(err => console.log(err));
 

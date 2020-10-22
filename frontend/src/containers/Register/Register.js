@@ -102,7 +102,7 @@ class Register extends Component {
   }
 
   onChange = e => {
-    this.setState({ [e.target.id]: e.target.value.trim() });
+    this.setState({ [e.target.id]: e.target.value });
   };
 
   onSubmit = async (e) => {

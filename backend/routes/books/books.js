@@ -32,7 +32,6 @@ function getLikedStatus(books, userFavorites) {
 }
 
 router.get('/', auth, async (req,res) => {
-  
   try {
     const id = req.user._id;
     const userGenres = await User.findById(id).select({genresPreferred:1,_id:0});
@@ -57,10 +56,10 @@ router.get('/favorites/me', auth, async(req, res) => {
     const user = await User.findById(id);
     for(favs of user.favorites) {
       let currbook = await Book.findById(favs._id).populate('uploadedBy', 'name _id');
-      books.push(currbook);
+      if(currbook) books.push(currbook);
     }
-
     let ret = getLikedStatus(books, user.favorites);
+    console.log(ret);
     res.send(ret);
   }
   catch(ex) {
@@ -110,7 +109,7 @@ router.post('/favorites', auth, async (req,res) => {
 
 router.post('/filter/:id', auth, async (req,res) => {
   try {
-    if(req.params.id > 4) return res.status(400).send('Invalid Request');
+    if(req.params.id > 3) return res.status(400).send('Invalid Request');
     const criteria={}
     if(req.body.filterName && req.body.filterName.length) criteria.title = {$regex:new RegExp(req.body.filterName, "i")};
     if(req.body.filterAuthor && req.body.filterAuthor.length) criteria.author = {$regex:new RegExp(req.body.filterAuthor, "i")};
@@ -132,16 +131,14 @@ router.post('/filter/:id', auth, async (req,res) => {
     if(req.params.id === '1') {
       books = await Book.find(criteria).sort('title').limit(200).populate('uploadedBy','name _id').select('-content');
     }
-    else if(req.params.id === '3') {
+    else if(req.params.id === '2') {
       books = (await Book.find(criteria).sort('title').limit(200).populate('uploadedBy', 'name _id')).filter(book => book.uploadedBy._id.toString() === req.user._id.toString());
     }
     else {
       const user = await User.findById(req.user._id);
       for(favs of user.favorites) {
         criteria._id = favs._id;
-        console.log(criteria);
         let currbook = await Book.find(criteria).populate('uploadedBy', 'name _id');
-        console.log(currbook);
         if(currbook.length>0) books.push(currbook[0]);
       }
     }
@@ -212,17 +209,16 @@ router.put('/:id', auth, async (req,res) => {
       if(!req.user.isAdmin && userid !== book.uploadedBy) return res.status(403).send('Access Denied');
 
       // otherwise validate body; if invalid return 400 bad request
-      const {error} = validateBookInput(req.body);
-      if(error) return res.status(400).send(error.details[0].message);
+      if(req.body.newTitle.trim().length<3 || req.body.newAuthor.trim().length < 3) {
+        return res.status(400).send('Values should be atleast 4 characters long');
+      }
 
       //next everything good update course and return updated course
       // First query and then Update (query has been done above)
 
       book.set({
-          title: req.body.title,
-          author: req.body.author,
-          content: req.body.content,
-          genres : req.body.genres
+          title: req.body.newTitle,
+          author: req.body.newAuthor
       });
 
       // If the book has passed Joi test we'll still test Database Level

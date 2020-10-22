@@ -26,18 +26,15 @@ def read_in():
 
 def main():
     a = read_in()
-    m = joblib.load('./model-data/model-2.pkl')
+    m = joblib.load('./ML/model-data/model1.pkl')
 
-    xtrain = np.load('./model-data/xtrain2.npy', allow_pickle=True)
+    xtrain = np.load('./ML/model-data/xtrain.npy', allow_pickle=True)
     xtrain = pd.Series(xtrain)
 
-    # final tfidf vectorizer
-    tfidf_vectorizer = TfidfVectorizer(min_df=0.01,ngram_range=(1,3),max_df=0.8, max_features=10000)
-
-    # tfidf_vectorizer = TfidfVectorizer(max_df=0.8, max_features=10000)
+    tfidf_vectorizer = TfidfVectorizer(max_df=0.8, max_features=10000)
     xtrain_tfidf = tfidf_vectorizer.fit_transform(xtrain)
 
-    genre_data = np.load('./model-data/genre_data2.npy', allow_pickle=True)
+    genre_data = np.load('./ML/model-data/genre_data.npy', allow_pickle=True)
     genre_data = pd.Series(genre_data)
     multilabel_binarizer = MultiLabelBinarizer()
     multilabel_binarizer.fit(genre_data)
@@ -47,11 +44,7 @@ def main():
     a = pd.Series(np.array([a]))
 
     xval_tfidf = tfidf_vectorizer.transform(a)
-
-    # Changed as the threshold
-    q_pred = m.predict_proba(xval_tfidf)
-    y_pred = (q_pred >= 0.25).astype(int)
-    # y_pred = m.predict(xval_tfidf)
+    y_pred = m.predict(xval_tfidf)
     ans = multilabel_binarizer.inverse_transform(y_pred)
     y_val_predicted_probabilites_tfidf = m.predict_proba(xval_tfidf)
     if len(ans[0]) == 0:

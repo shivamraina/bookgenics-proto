@@ -91,7 +91,7 @@ class Dashboard extends Component {
   
   // hide the modal in both showing and editing mode
   hideBookHandler = () => {
-    this.setState({showBook: false, editBook:false});
+    this.setState({showBook: false, editBook:false, showingBook:null});
   }
 
   // gets and edit the selected book
@@ -113,6 +113,7 @@ class Dashboard extends Component {
         newAuthor: this.state.newAuthor
       }
       await axios.put('/api/books/'+id, payload);
+      alert('Book Edited Successfully');
       this.setState({showingBook: null, newTitle: '', newAuthor: ''});
     }
     catch(ex) {
@@ -123,6 +124,7 @@ class Dashboard extends Component {
   deleteBookHandler = async(id) => {
     try {
       await axios.delete('/api/books/'+id);
+      alert('Book Deleted Successfully');
       this.setState({showingBook: null, newTitle: '', newAuthor: ''});
     }
     catch(ex) {

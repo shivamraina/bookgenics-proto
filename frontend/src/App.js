@@ -13,6 +13,7 @@ import PrivateRoute from './components/PrivateRoute/PrivateRoute';
 import Dashboard from './containers/Dashboard/Dashboard';
 import Favorites from './containers/Favorites/Favorites';
 import BooksAdded from './containers/BooksAdded/BooksAdded';
+import Predictor from './containers/Predictor/Predictor';
 
 class App extends Component {
 
@@ -38,6 +39,7 @@ class App extends Component {
             <PrivateRoute exact path="/dashboard" component={Dashboard} />
             <PrivateRoute exact path="/favorites" component={Favorites} />
             <PrivateRoute exact path="/booksadded" component={BooksAdded} />
+            <PrivateRoute exact path="/predictor" component={Predictor} />
           </Switch>
         </BrowserRouter>
       </Provider>

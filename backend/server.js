@@ -2,9 +2,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require("body-parser");
-const fileUpload = require('express-fileupload');
 const config = require('config');
-
+const spawn = require('child_process').spawn;
+const fileUpload = require('express-fileupload');
+const { StringDecoder } = require('string_decoder');
 // Initialising App
 const app = express();
 
@@ -12,8 +13,8 @@ const app = express();
 const genre = require('./routes/genres/genre');
 const login = require('./routes/user/login');
 const register = require('./routes/user/register');
-const prediction = require('./routes/predictor/prediction');
 const books = require('./routes/books/books');
+const prediction = require('./routes/predictor/prediction');
 
 if(!config.get('jwtPrivateKey')) {
   console.log('FATAL ERROR: jwtPrivateKey is not defined');
@@ -41,9 +42,10 @@ app.use(fileUpload());
 app.use('/api/genres', genre);
 app.use('/api/user/login', login);
 app.use('/api/user/register', register);
-app.use('/api/prediction', prediction);
 app.use('/api/books', books);
+app.use('/api/prediction', prediction);
+
 
 // Starting Server
-const port = process.env.PORT || 5001;
+const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Server started at port = ${port}`));

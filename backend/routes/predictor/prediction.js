@@ -9,7 +9,7 @@ router.post('/', async (req, res) =>{
   const decoder = new StringDecoder('utf8');
   const content = Buffer.from(myFile.data);
 
-  const py = spawn('python', ['../../ML/predictor.py']);
+  const py = spawn('python', ['predictor.py']);
   
   var ans;
   py.stdout.on('data', data => {
@@ -17,7 +17,7 @@ router.post('/', async (req, res) =>{
   });
   
   py.stdout.on('end', () => {
-    res.json({'ans':ans});
+    res.json({'ans':ans, 'content':JSON.stringify(decoder.write(content))});
   });
 
   py.stdin.write(JSON.stringify(decoder.write(content)));

@@ -1,4 +1,3 @@
-const Joi = require('joi');
 const express = require('express');
 const router = express.Router();
 const auth = require('../../middleware/auth');
@@ -59,7 +58,6 @@ router.get('/favorites/me', auth, async(req, res) => {
       if(currbook) books.push(currbook);
     }
     let ret = getLikedStatus(books, user.favorites);
-    console.log(ret);
     res.send(ret);
   }
   catch(ex) {
@@ -70,7 +68,9 @@ router.get('/favorites/me', auth, async(req, res) => {
 router.get('/added/me', auth, async(req, res) => {
   try {
     const id = req.user._id;
-    const books = (await Book.find().sort('title').limit(200).populate('uploadedBy', 'name _id')).filter(book => book.uploadedBy._id.toString() === id.toString());
+    let books = (await Book.find().populate('uploadedBy', 'name _id')).filter(book => book.uploadedBy._id.toString() === id.toString());
+    const upperLimit = Math.min(books.length, 201);
+    if(books) books = books.slice(0, upperLimit);
     let ret = getLikedStatus(books, (await User.findById(req.user._id)).favorites);
     res.send(ret);
   }
@@ -170,10 +170,22 @@ router.get('/:id', auth, async (req,res) => {
 });
 
 router.post('/', auth, async (req,res) => {
-  const { error } = validateBookInput(req.body);
-  if(error) return res.status(400).send(error.details[0].message);
-  
-  try{
+
+  try {
+
+    let Genres = [];
+    for(gen of req.body.genres) {
+      const Gen = await Genre.find({name: gen});
+      if(Gen.length>0) Genres.push(Gen[0]);
+    }
+    req.body.genres = Genres;
+
+    const { error } = validateBookInput(req.body);
+    if(error) {
+      console.log(error.details[0].message)
+      return res.status(400).send(error.details[0].message);
+    }
+
     const id = req.user._id;
     let book = new Book({
         title: req.body.title,
@@ -185,14 +197,13 @@ router.post('/', auth, async (req,res) => {
 
     await book.save();
     await book.populate('uploadedBy').execPopulate();
-    res.send(book);
+    res.send('OK');
   }
   catch(ex){
     res.send(ex);
   }
 
 });
-
 
 router.put('/:id', auth, async (req,res) => {
     const id = req.params.id;
@@ -206,7 +217,7 @@ router.put('/:id', auth, async (req,res) => {
 
       // Check if user is authorized to perform task-
       const userid = req.user._id;
-      if(!req.user.isAdmin && userid !== book.uploadedBy) return res.status(403).send('Access Denied');
+      if(!req.user.isAdmin && userid.toString() !== book.uploadedBy.toString()) return res.status(403).send('Access Denied');
 
       // otherwise validate body; if invalid return 400 bad request
       if(req.body.newTitle.trim().length<3 || req.body.newAuthor.trim().length < 3) {
@@ -230,7 +241,6 @@ router.put('/:id', auth, async (req,res) => {
     }
 });
 
-
 router.delete('/:id',auth,async (req,res)=>{
     
   const id = req.params.id;  
@@ -244,7 +254,7 @@ router.delete('/:id',auth,async (req,res)=>{
 
     // Check if user is authorized to perform task-
     const userid = req.user._id;
-    if(!req.user.isAdmin && userid != book.uploadedBy) return res.status(403).send('Access Denied');
+    if(!req.user.isAdmin && userid.toString() != book.uploadedBy.toString()) return res.status(403).send('Access Denied');
 
     await Book.deleteOne({_id: id });
     res.send('OK');
@@ -253,6 +263,5 @@ router.delete('/:id',auth,async (req,res)=>{
     res.send(ex);
   }
 });
-
 
 module.exports = router;

@@ -26,7 +26,7 @@ const dashUserNav = props => (
             <NavLink className="nav-link" to='/dashboard'> Home </NavLink>
           </li>
           <li className="nav-item">
-            <NavLink className="nav-link" to='/dashboard'>Predictor</NavLink>
+            <NavLink className="nav-link" to='/predictor'>Predictor</NavLink>
           </li>
           <li className="nav-item">
             <NavLink className="nav-link" to='/booksadded'>Books Added</NavLink>

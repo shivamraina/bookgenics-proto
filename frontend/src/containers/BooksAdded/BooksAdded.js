@@ -116,6 +116,7 @@ class BooksAdded extends Component {
         newAuthor: this.state.newAuthor
       }
       await axios.put('/api/books/'+id, payload);
+      alert('Book Edited Successfully');
       this.setState({showingBook: null, newTitle: '', newAuthor: ''});
     }
     catch(ex) {
@@ -126,6 +127,7 @@ class BooksAdded extends Component {
   deleteBookHandler = async(id) => {
     try {
       await axios.delete('/api/books/'+id);
+      alert('Book Deleted Successfully');
       this.setState({showingBook: null, newTitle: '', newAuthor: ''});
     }
     catch(ex) {

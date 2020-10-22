@@ -9,11 +9,11 @@ module.exports = function(book) {
     author: Joi.string().min(3).max(100).required(),
     
     content: Joi.string().min(3).required(),
-    
-    genres: Joi.array().items(Joi.object({
-        _id: Joi.objectId().required(),
-        name: Joi.valid(OTHERS,  THRILLER, DRAMA, ROMANCE, ABSTRACT, INSPIRATIONAL, FANSTASY, CHILDREN_STORIES, CHILDREN, TRAGEDY, HORROR, CLASSICS, ACTION, COMEDY, CRIME).required()
-    })).min(1).required()
+    genres: Joi.array()
+    // genres: Joi.array().items(Joi.object({
+    //     // _id: Joi.objectId().required(),
+    //     name: Joi.valid(OTHERS,  THRILLER, DRAMA, ROMANCE, ABSTRACT, INSPIRATIONAL, FANSTASY, CHILDREN_STORIES, CHILDREN, TRAGEDY, HORROR, CLASSICS, ACTION, COMEDY, CRIME).required()
+    // })).min(1).required()
   
   });
   const result = schema.validate(book);

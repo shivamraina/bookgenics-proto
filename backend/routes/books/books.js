@@ -1,31 +1,34 @@
 const express = require('express');
+// const Fawn = require('fawn');
 const router = express.Router();
 const auth = require('../../middleware/auth');
 const { Book } = require('../../models/book');
 const { User } = require('../../models/user');
 const { Genre } = require('../../models/genre');
 const validateBookInput = require('../../validation/validateBookInput'); 
+const { mongo } = require('mongoose');
 
-function getLikedStatus(books, userFavorites) {
+// Fawn.init(mongo);
+
+function getLikedStatus(books, userFavorites,choice) {
   let ret = [];
   for(book of books) {
     ret.push(book.toJSON());
   }
+  if(choice){
+    for(book of ret) {
+      book.liked = true;
+    }
+    return ret;
+  }
 
+  const likedBooks={}
+  for(favs of userFavorites){
+    likedBooks[favs._id.toString()]=1
+  }
   for(book of ret) {
-    let found = false;
-    if(userFavorites.length > 0) {
-      for(favs of userFavorites) {
-        if(book._id.toString() === favs._id.toString()) {
-          found = true;
-          book.liked = true;
-          break;
-        }
-      }
-    }
-    if(!found) {
-      book.liked = false;
-    }
+    if (likedBooks[book._id.toString()]) book.liked = true;
+    else book.liked = false;
   }
   return ret;
 }
@@ -39,7 +42,7 @@ router.get('/', auth, async (req,res) => {
       genres: { $in: userGenres.genresPreferred}
     }).sort('title').limit(200).populate('uploadedBy','name _id');
 
-    let ret = getLikedStatus(books, user.favorites);
+    let ret = getLikedStatus(books, user.favorites,0);
     res.send(ret);
   }
   catch(ex) {
@@ -57,7 +60,7 @@ router.get('/favorites/me', auth, async(req, res) => {
       let currbook = await Book.findById(favs._id).populate('uploadedBy', 'name _id');
       if(currbook) books.push(currbook);
     }
-    let ret = getLikedStatus(books, user.favorites);
+    let ret = getLikedStatus(books, user.favorites,1);
     res.send(ret);
   }
   catch(ex) {
@@ -71,7 +74,7 @@ router.get('/added/me', auth, async(req, res) => {
     let books = (await Book.find().sort('title').populate('uploadedBy', 'name _id')).filter(book => book.uploadedBy._id.toString() === id.toString());
     const upperLimit = Math.min(books.length, 201);
     if(books) books = books.slice(0, upperLimit);
-    let ret = getLikedStatus(books, (await User.findById(req.user._id)).favorites);
+    let ret = getLikedStatus(books, (await User.findById(req.user._id)).favorites,0);
     res.send(ret);
   }
   catch(ex) {
@@ -193,7 +196,14 @@ router.post('/', auth, async (req,res) => {
 
     const { error } = validateBookInput(req.body);
     if(error) {
-      console.log(error.details[0].message)
+      // console.log(req.body);
+      // console.log(error.details[0].message)
+      // const idk= req.body.genres[0];
+      // const mt = idk._id;
+      // console.log(idk);
+      // console.log(typeof mt);
+      // const id = req.user._id;
+      // console.log(typeof id);
       return res.status(400).send(error.details[0].message);
     }
 
@@ -237,7 +247,11 @@ router.put('/:id', auth, async (req,res) => {
 
       //next everything good update course and return updated course
       // First query and then Update (query has been done above)
-
+      // new Fawn.Task()
+      //   .updateMany('users',{ favorites: book}, { $set: { "favorites.$.title": req.body.newTitle,"favorites.$.author": req.body.newAuthor } }).exec()
+      //   .update('books',{_id: id},{$set: { title: req.body.newTitle, author: req.body.newAuthor} })
+      //   .run();
+      await User.updateMany({ favorites: book}, { $set: { "favorites.$.title": req.body.newTitle,"favorites.$.author": req.body.newAuthor } }).exec();
       book.set({
           title: req.body.newTitle,
           author: req.body.newAuthor
@@ -267,6 +281,7 @@ router.delete('/:id',auth,async (req,res)=>{
     const userid = req.user._id;
     if(!req.user.isAdmin && userid.toString() != book.uploadedBy.toString()) return res.status(403).send('Access Denied');
 
+    await User.updateMany({}, { $pull: { favorites: book} } ).exec();
     await Book.deleteOne({_id: id });
     res.send('OK');
   }
@@ -274,5 +289,4 @@ router.delete('/:id',auth,async (req,res)=>{
     res.send(ex);
   }
 });
-
 module.exports = router;

@@ -15,6 +15,7 @@ const login = require('./routes/user/login');
 const register = require('./routes/user/register');
 const books = require('./routes/books/books');
 const prediction = require('./routes/predictor/prediction');
+const info = require('./routes/user/info');
 
 if(!config.get('jwtPrivateKey')) {
   console.log('FATAL ERROR: jwtPrivateKey is not defined');
@@ -44,6 +45,11 @@ app.use('/api/user/login', login);
 app.use('/api/user/register', register);
 app.use('/api/books', books);
 app.use('/api/prediction', prediction);
+app.use('/api/user/me', info);
+
+// app.get('/api/checking', (req, res) => {
+//   res.json({id:'1', name:'Shivam', height:'200cm'});
+// }); 
 
 
 // Starting Server

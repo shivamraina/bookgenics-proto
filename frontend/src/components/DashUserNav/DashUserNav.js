@@ -7,7 +7,7 @@ import * as actionCreators from '../../store/actions/index';
 import Image from '../../assets/images/3.jpeg'
 
 const dashUserNav = props => (
-  <nav>
+  <React.Fragment>
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <Link to='/dashboard' style={{ textDecoration: 'none', color: 'black'}}>
         <img src={Image} width='130' height='130' className={classes.Image+' rounded-circle'} alt='logo'/>
@@ -16,13 +16,13 @@ const dashUserNav = props => (
       <h4 className={classes.TopNavTagLine+" text-center"}>AI POWERED <br/>GENRE CLASSIFIER</h4>
     </nav>
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
-      <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
         <span className="navbar-toggler-icon"></span>
       </button>
 
-      <div className={"collapse navbar-collapse " + classes.SecondNav} id="navbarSupportedContent">
+      <div className="collapse navbar-collapse" id="navbarText">
         <ul className="navbar-nav mr-auto">
-          <li className="nav-item active">
+          <li className="nav-item">
             <NavLink className="nav-link" to='/dashboard'> Home </NavLink>
           </li>
           <li className="nav-item">
@@ -37,15 +37,15 @@ const dashUserNav = props => (
         </ul>
         <ul className="navbar-nav">
           <li className="nav-item">
-            <NavLink className="nav-link mx-2" to='/dashboard'>Account Settings</NavLink>
+            <NavLink className="nav-link mr-3" to='/settings'>Account Settings</NavLink>
           </li>
           <li className="nav-item">
-            <button className="btn btn-small btn-danger" onClick={props.logoutUser}>Logout</button>
+            <button className="btn btn-block btn-small btn-danger" onClick={props.logoutUser}>Logout</button>
           </li>
         </ul>
       </div>
     </nav>
-  </nav>
+  </React.Fragment>
 );
 
 dashUserNav.propTypes = {

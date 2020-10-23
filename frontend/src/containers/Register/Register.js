@@ -77,7 +77,7 @@ class Register extends Component {
     if (typeof this.state.password !== "undefined") {
       if (!this.state.password.match(/^.*(?=.{8,})(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%&]).*$/)) {
         formIsValid = false;
-        errors["password"] = `*Must be at least 8 characters. At least 1 special character from @#$%&. At least 1 number, 1 lowercase, 1 uppercase letter;`
+        errors["password"] = `*Must be at least 8 characters. At least 1 special character from @#$%&. At least 1 number, 1 lowercase, 1 uppercase letter`
         // Must be at least 8 characters. At least 1 special character from @#$%&. At least 1 number, 1 lowercase, 1 uppercase letter;
       }
     }

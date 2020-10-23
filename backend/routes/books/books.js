@@ -71,7 +71,7 @@ router.get('/favorites/me', auth, async(req, res) => {
 router.get('/added/me', auth, async(req, res) => {
   try {
     const id = req.user._id;
-    let books = (await Book.find().populate('uploadedBy', 'name _id')).filter(book => book.uploadedBy._id.toString() === id.toString());
+    let books = (await Book.find().sort('title').populate('uploadedBy', 'name _id')).filter(book => book.uploadedBy._id.toString() === id.toString());
     const upperLimit = Math.min(books.length, 201);
     if(books) books = books.slice(0, upperLimit);
     let ret = getLikedStatus(books, (await User.findById(req.user._id)).favorites,0);
@@ -132,16 +132,27 @@ router.post('/filter/:id', auth, async (req,res) => {
 
     let books = [];
     if(req.params.id === '1') {
-      books = await Book.find(criteria).sort('title').limit(200).populate('uploadedBy','name _id').select('-content');
+      if(Object.keys(criteria).length === 0 && criteria.constructor === Object) {
+        const userGenres = await User.findById(req.user._id).select({genresPreferred:1,_id:0});
+        books = await Book.find({
+          genres: { $in: userGenres.genresPreferred}
+        }).sort('title').limit(200).populate('uploadedBy','name _id');
+      }
+      else {
+        books = await Book.find(criteria).sort('title').limit(200).populate('uploadedBy','name _id').select('-content');
+      }
     }
+
     else if(req.params.id === '2') {
       books = (await Book.find(criteria).sort('title').limit(200).populate('uploadedBy', 'name _id')).filter(book => book.uploadedBy._id.toString() === req.user._id.toString());
+      const upperLimit = Math.min(books.length, 201);
+      if(books) books = books.slice(0, upperLimit);
     }
     else {
       const user = await User.findById(req.user._id);
       for(favs of user.favorites) {
         criteria._id = favs._id;
-        let currbook = await Book.find(criteria).populate('uploadedBy', 'name _id');
+        let currbook = await Book.find(criteria).sort('title').populate('uploadedBy', 'name _id');
         if(currbook.length>0) books.push(currbook[0]);
       }
     }
@@ -197,7 +208,6 @@ router.post('/', auth, async (req,res) => {
     }
 
     const id = req.user._id;
-    console.log(typeof id);
     let book = new Book({
         title: req.body.title,
         author: req.body.author,
@@ -255,8 +265,6 @@ router.put('/:id', auth, async (req,res) => {
       res.send(ex);
     }
 });
-
-
 
 router.delete('/:id',auth,async (req,res)=>{
     

@@ -3,7 +3,6 @@ import DashUserNav from '../../components/DashUserNav/DashUserNav';
 import BookUtils from '../../components/BookUtils/BookUtils';
 import BookDisplay from '../../components/BookDisplay/BookDisplay';
 import Modal from '../../components/UI/Modal/Modal';
-import withErrorHandler from '../../hoc/withErrorHandler';
 import FullBookDisplay from '../../components/FullBookDisplay/FullBookDisplay';
 import axios from 'axios';
 
@@ -11,9 +10,9 @@ class BooksAdded extends Component {
   
   state = {
     //self
+    name: '',
     genres:[],
     loading: false,
-    error: false,
     
     //bookdisplay
     books: [],
@@ -40,13 +39,15 @@ class BooksAdded extends Component {
     try {
       const res = await axios.get('/api/genres');
       const res2 = await axios.get('/api/books/added/me');
+      const res3 = await axios.get('/api/user/me');
       if(res2.data.length === 0) {
-        this.setState({loading: false, books: res2.data, notfound: true, genres: res.data});  
+        this.setState({loading: false, books: res2.data, notfound: true, genres: res.data, name: res3.data.name});  
       }
-      else this.setState({loading: false, books: res2.data, genres: res.data});
+      else this.setState({loading: false, books: res2.data, genres: res.data, name: res3.data.name});
     }
     catch(ex) {
-      this.setState({error: true});
+      alert(ex.response.data);
+      this.setState({loading: false});
     }
   }
 
@@ -88,7 +89,8 @@ class BooksAdded extends Component {
       this.setState({showingBook: res.data});
     }
     catch(ex) {
-      this.setState({error: true});
+      alert(ex.response.data);
+      this.setState({loading: false});
     }
   }
   
@@ -105,22 +107,24 @@ class BooksAdded extends Component {
       this.setState({showingBook: res.data, newTitle:res.data.title, newAuthor:res.data.author});
     }
     catch(ex) {
-      this.setState({error: true});
+      alert(ex.response.data);
+      this.setState({loading: false});
     }
   }
 
   changeBookHandler = async(id) => {
+    const payload = {
+      newTitle: this.state.newTitle,
+      newAuthor: this.state.newAuthor
+    }
     try {
-      const payload = {
-        newTitle: this.state.newTitle,
-        newAuthor: this.state.newAuthor
-      }
       await axios.put('/api/books/'+id, payload);
       alert('Book Edited Successfully');
       this.setState({showingBook: null, newTitle: '', newAuthor: ''});
     }
     catch(ex) {
-      this.setState({error: true});
+      alert(ex.response.data);
+      this.setState({loading: false});
     }
   }
 
@@ -131,7 +135,8 @@ class BooksAdded extends Component {
       this.setState({showingBook: null, newTitle: '', newAuthor: ''});
     }
     catch(ex) {
-      this.setState({error: true});
+      alert(ex.response.data);
+      this.setState({loading: false});
     }
   }
   
@@ -147,6 +152,7 @@ class BooksAdded extends Component {
             <div className="row">
               <div className="col-sm-12 col-md-4">
                 <BookUtils genres={this.state.genres} 
+                          name={this.state.name}
                           page_id = '2'
                           filtered={(books) => this.filterBooksHandler(books)}
                           sorted={this.sortBooksHandler}
@@ -183,9 +189,14 @@ class BooksAdded extends Component {
       <React.Fragment>
         <DashUserNav />
         {screen}
+        <footer className="page-footer fixed-bottom" style={{backgroundColor: '#00695c', height:'25px'}}>
+          <div className="footer-copyright text-center">
+            <p style={{color:'white'}}>© 2020 Copyright: Developed Through Love</p>
+          </div>	
+        </footer>
       </React.Fragment>
     );
   }
 }
 
-export default withErrorHandler(BooksAdded, axios);
+export default BooksAdded;

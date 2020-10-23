@@ -1,7 +1,4 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
-import { connect } from "react-redux"
-import withErrorHandler from '../../hoc/withErrorHandler';
 import DashUserNav from '../../components/DashUserNav/DashUserNav';
 import axios from "axios";
 
@@ -32,13 +29,25 @@ let titleCase = (str) => {
 class Predictor extends Component {
 
   state = {
+    name: '',
     loading: false,
     res: [],
     content: '',
     selectedFile: null,
-    error: false,
     title: '',
     author:''
+  }
+
+  async componentDidMount() {
+    this.setState({loading: true});
+    try{
+      const res = await axios.get('/api/user/me');
+      this.setState({name: res.data.name, loading: false});
+    }
+    catch(ex) {
+      alert(ex.response.data);
+      this.setState({loading: false});
+    }
   }
 
   onFileChange = event => { 
@@ -62,7 +71,8 @@ class Predictor extends Component {
       this.setState({loading: false, res: rest, content: res.data.content});
     }
     catch(ex) {
-      this.setState({loading: false, res: ex.message});
+      alert(ex.response.data);
+      this.setState({loading: false});
     }
   }
 
@@ -73,20 +83,20 @@ class Predictor extends Component {
   addBookHandler = async (e) => {
     e.preventDefault();
     this.setState({loading: true});
+    const payload = {
+      title: this.state.title,
+      author: this.state.author,
+      genres: this.state.res,
+      content: this.state.content
+    }
     try{
-      const payload = {
-        title: this.state.title,
-        author: this.state.author,
-        genres: this.state.res,
-        content: this.state.content
-      }
       await axios.post('/api/books', payload);
       alert('Book has been added');
       this.setState({loading: false});
     }
     catch(ex) {
+      alert(ex.response.data);
       this.setState({loading: false});
-      this.setState({error: true});
     }
 
   }
@@ -157,13 +167,13 @@ class Predictor extends Component {
       <React.Fragment>
         <DashUserNav />
         <div className="container mt-4 mb-4">
-          <div className="row mt-4 mb-4">
+          <div className="row mt-4">
             <h4>
-              <strong>Welcome, {this.props.auth.user.name} </strong>
+              <strong>Welcome, {this.state.name} </strong>
             </h4>
           </div>
-          <div className="container border border-success mt-3" style={{backgroundColor: 'white'}}>
-            <div className='container mt-3 p-3'>
+          <div className="container border border-success" style={{backgroundColor: 'white'}}>
+            <div className='container p-3'>
               <div className='form-group'>
                 <label htmlFor="userfile" className='lead'>Upload Only the Story of your File</label>
               </div>
@@ -175,17 +185,15 @@ class Predictor extends Component {
           </div>
         </div>
         {screen}
+        <footer className="page-footer fixed-bottom" style={{backgroundColor: '#00695c', height:'25px'}}>
+          <div className="footer-copyright text-center">
+            <p style={{color:'white'}}>© 2020 Copyright: Developed Through Love</p>
+          </div>	
+        </footer>
       </React.Fragment>
     );
   }
 }
 
-Predictor.propTypes = {
-  auth: PropTypes.object.isRequired
-};
 
-const mapStateToProps = state => ({
-  auth: state.auth
-});
-
-export default withErrorHandler(connect(mapStateToProps)(Predictor), axios);
+export default Predictor;

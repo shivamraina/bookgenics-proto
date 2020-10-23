@@ -14,6 +14,8 @@ import Dashboard from './containers/Dashboard/Dashboard';
 import Favorites from './containers/Favorites/Favorites';
 import BooksAdded from './containers/BooksAdded/BooksAdded';
 import Predictor from './containers/Predictor/Predictor';
+import Settings from './containers/Settings/Settings';
+import Password from './containers/Password/Password';
 
 class App extends Component {
 
@@ -40,6 +42,8 @@ class App extends Component {
             <PrivateRoute exact path="/favorites" component={Favorites} />
             <PrivateRoute exact path="/booksadded" component={BooksAdded} />
             <PrivateRoute exact path="/predictor" component={Predictor} />
+            <PrivateRoute exact path="/settings" component={Settings} />
+            <PrivateRoute exact path="/password" component={Password} />
           </Switch>
         </BrowserRouter>
       </Provider>
